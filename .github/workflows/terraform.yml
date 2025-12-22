@@ -1,0 +1,100 @@
+name: Terraform AWS Core Infrastructure
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+
+    # GitHub Environment = deployment gate
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+
+    env:
+      AWS_REGION: us-east-2
+
+    steps:
+      # -------------------------
+      # Checkout
+      # -------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -------------------------
+      # Determine environment
+      # -------------------------
+      - name: Set environment
+        id: env
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            if [[ "${{ github.base_ref }}" == "main" ]]; then
+              echo "env=prod" >> $GITHUB_OUTPUT
+            else
+              echo "env=dev" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          fi
+
+      # -------------------------
+      # AWS OIDC Auth
+      # -------------------------
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::277089531535:role/github-actions-terraform-${{ steps.env.outputs.env }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # -------------------------
+      # Terraform Init
+      # -------------------------
+      - name: Terraform Init
+        working-directory: environments/${{ steps.env.outputs.env }}
+        run: terraform init
+
+      # -------------------------
+      # Terraform Format
+      # -------------------------
+      - name: Terraform Format Check
+        working-directory: environments/${{ steps.env.outputs.env }}
+        run: terraform fmt -check
+
+      # -------------------------
+      # Terraform Validate
+      # -------------------------
+      - name: Terraform Validate
+        working-directory: environments/${{ steps.env.outputs.env }}
+        run: terraform validate
+
+      # -------------------------
+      # Terraform Plan
+      # -------------------------
+      - name: Terraform Plan
+        working-directory: environments/${{ steps.env.outputs.env }}
+        run: terraform plan
+
+      # -------------------------
+      # Terraform Apply (manual only)
+      # -------------------------
+      - name: Terraform Apply
+        if: github.event_name == 'workflow_dispatch'
+        working-directory: environments/${{ steps.env.outputs.env }}
+        run: terraform apply -auto-approve
