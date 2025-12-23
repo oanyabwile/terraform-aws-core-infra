@@ -1,0 +1,11 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.backup
+*.log
+
+# Terraform lock file (optional)
+**/.terraform.lock.hcl
