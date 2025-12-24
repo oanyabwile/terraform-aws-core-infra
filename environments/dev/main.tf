@@ -39,3 +39,19 @@ module "alb" {
   public_subnet_ids = module.vpc.public_subnet_ids
   security_group_id = module.security_groups.alb_sg_id
 }
+
+module "asg" {
+  source = "../../modules/asg"
+
+  name = "core-dev"
+
+  private_subnet_ids = module.vpc.private_subnet_ids
+  target_group_arn   = module.alb.target_group_arn
+  app_sg_id          = module.security_groups.app_sg_id
+
+  instance_profile_name = "ec2-instance-profile"
+
+  min_size         = 1
+  desired_capacity = 2
+  max_size         = 3
+}
