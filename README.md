@@ -36,29 +36,29 @@ The infrastructure consists of the following layers:
 ---
 
 ## Terraform Module Structure
+
+```text
 terraform-aws-core-infra/
 ├── environments/
-│ └── dev/
-│ └── main.tf
+│   └── dev/
+│       └── main.tf
 ├── modules/
-│ ├── vpc/
-│ ├── security-groups/
-│ ├── alb/
-│ ├── asg/
-│ └── rds/
-
-
-
+│   ├── vpc/
+│   ├── security-groups/
+│   ├── alb/
+│   ├── asg/
+│   └── rds/
+```
 Each module is:
-- Independently reusable
-- Variable-driven
-- Exposed through outputs for clean inter-module wiring
+- **Independently reusable**
+- **Variable-driven**
+- **Exposed through outputs** for clean inter-module wiring
 
 ---
 
 ## Infrastructure as Code
-- All infrastructure is defined using Terraform
-- Remote state stored in **S3** with **DynamoDB state locking**
+- All infrastructure is defined using **Terraform**
+- Remote state stored in **Amazon S3** with **DynamoDB state locking**
 - Environment-based configuration to support dev and prod deployments
 - Modular design allows individual components to evolve independently
 
@@ -78,8 +78,8 @@ This ensures consistent formatting, validation, and safe change previews before 
 
 ## Security Highlights
 - No hardcoded secrets or credentials
-- Database passwords managed automatically by AWS Secrets Manager
-- KMS-backed encryption for sensitive data
+- Database passwords managed automatically by **AWS Secrets Manager**
+- **KMS-backed encryption** for sensitive data
 - IAM roles scoped by service responsibility
 - Private networking for application and database tiers
 
@@ -110,9 +110,4 @@ This closely reflects the expectations for **Cloud Engineer** and **Platform Eng
 - GitHub Actions
 - Amazon S3 and DynamoDB (Terraform state)
 
----
 
-## Status
-✅ **Completed**
-
-The infrastructure is fully deployed, validated, and CI/CD-ready.
