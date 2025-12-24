@@ -66,10 +66,10 @@ EOF
 ############################################
 
 resource "aws_autoscaling_group" "this" {
-  name                      = "${var.name}-asg"
-  min_size                  = var.min_size
-  desired_capacity          = var.desired_capacity
-  max_size                  = var.max_size
+  name             = "${var.name}-asg"
+  min_size         = var.min_size
+  desired_capacity = var.desired_capacity
+  max_size         = var.max_size
 
   vpc_zone_identifier       = var.private_subnet_ids
   health_check_type         = "ELB"
