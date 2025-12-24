@@ -55,3 +55,14 @@ module "asg" {
   desired_capacity = 2
   max_size         = 3
 }
+
+module "rds" {
+  source = "../../modules/rds"
+
+  name               = "core-dev"
+  db_name            = "appdb"
+  db_username        = "appuser"
+  private_subnet_ids = module.vpc.private_subnet_ids
+  rds_sg_id          = module.security_groups.rds_sg_id
+}
+
